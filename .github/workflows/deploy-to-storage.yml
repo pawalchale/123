@@ -23,14 +23,17 @@ jobs:
         id: env_vars
         run: |
           if [ "${{ github.event.inputs.environment }}" == "qa" ]; then
-            echo "storage_account_url=${{ secrets.QA_URL }}" >> $GITHUB_ENV
+            echo "storage_account_name=staticsiteqa123" >> $GITHUB_ENV
             echo "env_name=QA" >> $GITHUB_ENV
+            echo "storage_account_url=${{ secrets.QA_URL }}" >> $GITHUB_ENV
           elif [ "${{ github.event.inputs.environment }}" == "staging" ]; then
-            echo "storage_account_url=${{ secrets.STAGING_URL }}" >> $GITHUB_ENV
+            echo "storage_account_name=staticsitestaging123" >> $GITHUB_ENV
             echo "env_name=Staging" >> $GITHUB_ENV
+            echo "storage_account_url=${{ secrets.STAGING_URL }}" >> $GITHUB_ENV
           elif [ "${{ github.event.inputs.environment }}" == "prod" ]; then
-            echo "storage_account_url=${{ secrets.PROD_URL }}" >> $GITHUB_ENV
+            echo "storage_account_name=staticsiteprod123" >> $GITHUB_ENV
             echo "env_name=Production" >> $GITHUB_ENV
+            echo "storage_account_url=${{ secrets.PROD_URL }}" >> $GITHUB_ENV
           else
             echo "Invalid environment specified."
             exit 1
