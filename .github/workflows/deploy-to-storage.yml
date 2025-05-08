@@ -1,0 +1,48 @@
+name: Deploy Static Website
+
+on:
+  workflow_dispatch: # Makes the workflow manually triggered
+    inputs:
+      environment:
+        description: "Select the environment to deploy to (qa/staging/prod)"
+        required: true
+        default: "qa"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Step 2: Set the Storage Account Name based on environment
+      - name: Set Storage Account Name
+        id: storage_account
+        run: |
+          if [ "${{ github.event.inputs.environment }}" == "qa" ]; then
+            echo "storage_account_name=staticsiteqa123" >> $GITHUB_ENV
+          elif [ "${{ github.event.inputs.environment }}" == "staging" ]; then
+            echo "storage_account_name=staticsitestaging123" >> $GITHUB_ENV
+          elif [ "${{ github.event.inputs.environment }}" == "prod" ]; then
+            echo "storage_account_name=staticsiteprod123" >> $GITHUB_ENV
+          else
+            echo "Invalid environment specified. Exiting workflow."
+            exit 1
+          fi
+
+      # Step 3: Upload the index.html file to the $web container
+      - name: Upload index.html to $web Container
+        run: |
+          az storage blob upload-batch \
+            --account-name ${{ env.storage_account_name }} \
+            --source src/ \
+            --destination '$web' \
+            --pattern index.html \
+            --account-key ${{ secrets.AZURE_STORAGE_KEY }}
+
+      # Step 4: Verify deployment (Optional)
+      - name: Verify Deployment
+        run: |
+          echo "Deployment of index.html to ${{ env.storage_account_name }} (${{ github.event.inputs.environment }}) complete."
