@@ -42,7 +42,7 @@ jobs:
       # Step 3: Replace Placeholders in index.html Dynamically
       - name: Replace Placeholders in index.html
         run: |
-          sed -i "s|{{STORAGE_ACCOUNT_URL}}|${{ env.storage_account_url }}|g" src/index.html
+          # sed -i "s|{{STORAGE_ACCOUNT_URL}}|${{ env.storage_account_url }}|g" src/index.html
           sed -i "s|{{ENV_NAME}}|${{ env.env_name }}|g" src/index.html
 
       # Step 4: Upload the Modified index.html to Azure Storage
