@@ -41,6 +41,7 @@ jobs:
             --destination '$web' \
             --pattern index.html \
             --account-key ${{ secrets.AZURE_STORAGE_KEY }}
+            --overwrite
 
       # Step 4: Verify deployment (Optional)
       - name: Verify Deployment
