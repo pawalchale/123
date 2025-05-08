@@ -40,7 +40,7 @@ jobs:
             --source src/ \
             --destination '$web' \
             --pattern index.html \
-            --account-key ${{ secrets.AZURE_STORAGE_KEY }}
+            --account-key ${{ secrets.AZURE_STORAGE_KEY }} \
             --overwrite
 
       # Step 4: Verify deployment (Optional)
