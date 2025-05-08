@@ -61,3 +61,7 @@ jobs:
         run: |
           echo "Deployment complete for ${{ env.env_name }} environment."
           echo "Static website URL: ${{ env.storage_account_url }}/index.html"
+
+      - name: Debug Modified index.html
+        run: |
+          cat src/index.html
