@@ -1,7 +1,7 @@
 name: Deploy Static Website
 
 on:
-  workflow_dispatch: # Makes the workflow manually triggered
+  workflow_dispatch:
     inputs:
       environment:
         description: "Select the environment to deploy to (qa/staging/prod)"
@@ -13,26 +13,36 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout the repository
+      # Step 1: Checkout the Repository
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Step 2: Set the Storage Account Name based on environment
-      - name: Set Storage Account Name
-        id: storage_account
+      # Step 2: Set Environment Variables
+        # Dynamically fetch the correct storage account URL
+      - name: Set Environment Variables
+        id: env_vars
         run: |
           if [ "${{ github.event.inputs.environment }}" == "qa" ]; then
-            echo "storage_account_name=staticsiteqa123" >> $GITHUB_ENV
+            echo "storage_account_url=${{ secrets.QA_URL }}" >> $GITHUB_ENV
+            echo "env_name=QA" >> $GITHUB_ENV
           elif [ "${{ github.event.inputs.environment }}" == "staging" ]; then
-            echo "storage_account_name=staticsitestaging123" >> $GITHUB_ENV
+            echo "storage_account_url=${{ secrets.STAGING_URL }}" >> $GITHUB_ENV
+            echo "env_name=Staging" >> $GITHUB_ENV
           elif [ "${{ github.event.inputs.environment }}" == "prod" ]; then
-            echo "storage_account_name=staticsiteprod123" >> $GITHUB_ENV
+            echo "storage_account_url=${{ secrets.PROD_URL }}" >> $GITHUB_ENV
+            echo "env_name=Production" >> $GITHUB_ENV
           else
-            echo "Invalid environment specified. Exiting workflow."
+            echo "Invalid environment specified."
             exit 1
           fi
 
-      # Step 3: Upload the index.html file to the $web container
+      # Step 3: Replace Placeholders in index.html Dynamically
+      - name: Replace Placeholders in index.html
+        run: |
+          sed -i "s/{{STORAGE_ACCOUNT_URL}}/${{ env.storage_account_url }}/g" src/index.html
+          sed -i "s/{{ENV_NAME}}/${{ env.env_name }}/g" src/index.html
+
+      # Step 4: Upload the Modified index.html to Azure Storage
       - name: Upload index.html to $web Container
         run: |
           az storage blob upload-batch \
@@ -43,7 +53,8 @@ jobs:
             --account-key ${{ secrets.AZURE_STORAGE_KEY }} \
             --overwrite
 
-      # Step 4: Verify deployment (Optional)
+      # Step 5: Verify Deployment (Optional)
       - name: Verify Deployment
         run: |
-          echo "Deployment of index.html to ${{ env.storage_account_name }} (${{ github.event.inputs.environment }}) complete."
+          echo "Deployment complete for ${{ env.env_name }} environment."
+          echo "Static website URL: ${{ env.storage_account_url }}/index.html"
