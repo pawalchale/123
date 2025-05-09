@@ -38,6 +38,19 @@ jobs:
             echo "Invalid environment specified."
             exit 1
           fi
+          
+      - name: Set Dynamic Account Key
+        run: |
+          if [ "${{ env.env_name }}" == "qa" ]; then
+            echo "AZURE_STORAGE_KEY=${{ secrets.QA_AZURE_STORAGE_KEY }}" >> $GITHUB_ENV
+          elif [ "${{ env.env_name }}" == "stage" ]; then
+            echo "AZURE_STORAGE_KEY=${{ secrets.STAGE_AZURE_STORAGE_KEY }}" >> $GITHUB_ENV
+          elif [ "${{ env.env_name }}" == "prod" ]; then
+            echo "AZURE_STORAGE_KEY=${{ secrets.PROD_AZURE_STORAGE_KEY }}" >> $GITHUB_ENV
+          else
+            echo "Invalid environment specified: ${{ env.env_name }}"
+            exit 1
+          fi
 
       # Step 3: Replace Placeholders in index.html Dynamically
       - name: Replace Placeholders in index.html
@@ -46,6 +59,16 @@ jobs:
           sed -i "s|{{ENV_NAME}}|${{ env.env_name }}|g" src/index.html
 
       # Step 4: Upload the Modified index.html to Azure Storage
+      # - name: Upload index.html to $web Container
+      #   run: |
+      #     az storage blob upload-batch \
+      #       --account-name ${{ env.storage_account_name }} \
+      #       --source src/ \
+      #       --destination '$web' \
+      #       --pattern index.html \
+      #       --account-key ${{ secrets.AZURE_STORAGE_KEY }} \
+      #       --overwrite
+
       - name: Upload index.html to $web Container
         run: |
           az storage blob upload-batch \
@@ -53,9 +76,9 @@ jobs:
             --source src/ \
             --destination '$web' \
             --pattern index.html \
-            --account-key ${{ secrets.AZURE_STORAGE_KEY }} \
+            --account-key ${{ env.AZURE_STORAGE_KEY }} \
             --overwrite
-
+      
       # Step 5: Verify Deployment (Optional)
       - name: Verify Deployment
         run: |
