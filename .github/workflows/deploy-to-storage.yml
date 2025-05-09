@@ -18,7 +18,7 @@ jobs:
         uses: actions/checkout@v3
 
       # Step 2: Set Environment Variables
-        # Dynamically fetch the correct storage account URL
+        # Dynamically fetch the correct storage account URL & Acc Key
       - name: Set Environment Variables
         id: env_vars
         run: |
@@ -59,16 +59,6 @@ jobs:
           sed -i "s|{{ENV_NAME}}|${{ env.env_name }}|g" src/index.html
 
       # Step 4: Upload the Modified index.html to Azure Storage
-      # - name: Upload index.html to $web Container
-      #   run: |
-      #     az storage blob upload-batch \
-      #       --account-name ${{ env.storage_account_name }} \
-      #       --source src/ \
-      #       --destination '$web' \
-      #       --pattern index.html \
-      #       --account-key ${{ secrets.AZURE_STORAGE_KEY }} \
-      #       --overwrite
-
       - name: Upload index.html to $web Container
         run: |
           az storage blob upload-batch \
@@ -83,8 +73,5 @@ jobs:
       - name: Verify Deployment
         run: |
           echo "Deployment complete for ${{ env.env_name }} environment."
-          echo "Static website URL: ${{ env.storage_account_url }}/index.html"
 
-      - name: Debug Modified index.html
-        run: |
-          cat src/index.html
+
