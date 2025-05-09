@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       environment:
-        description: "Select the environment to deploy to (qa/staging/prod)"
+        description: "Select the environment to deploy to (qa/stage/prod)"
         required: true
         default: "qa"
 
@@ -26,8 +26,8 @@ jobs:
             echo "storage_account_name=staticsiteqa123" >> $GITHUB_ENV
             echo "env_name=QA" >> $GITHUB_ENV
             echo "storage_account_url=${{ secrets.QA_URL }}" >> $GITHUB_ENV
-          elif [ "${{ github.event.inputs.environment }}" == "staging" ]; then
-            echo "storage_account_name=staticsitestaging123" >> $GITHUB_ENV
+          elif [ "${{ github.event.inputs.environment }}" == "stage" ]; then
+            echo "storage_account_name=staticsitestage123" >> $GITHUB_ENV
             echo "env_name=Staging" >> $GITHUB_ENV
             echo "storage_account_url=${{ secrets.STAGING_URL }}" >> $GITHUB_ENV
           elif [ "${{ github.event.inputs.environment }}" == "prod" ]; then
